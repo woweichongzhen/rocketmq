@@ -17,17 +17,18 @@
 package org.apache.rocketmq.remoting.common;
 
 import io.netty.channel.Channel;
-import java.io.IOException;
-import java.net.InetSocketAddress;
-import java.net.SocketAddress;
-import java.nio.ByteBuffer;
-import java.nio.channels.SocketChannel;
 import org.apache.rocketmq.logging.InternalLogger;
 import org.apache.rocketmq.logging.InternalLoggerFactory;
 import org.apache.rocketmq.remoting.exception.RemotingConnectException;
 import org.apache.rocketmq.remoting.exception.RemotingSendRequestException;
 import org.apache.rocketmq.remoting.exception.RemotingTimeoutException;
 import org.apache.rocketmq.remoting.protocol.RemotingCommand;
+
+import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.net.SocketAddress;
+import java.nio.ByteBuffer;
+import java.nio.channels.SocketChannel;
 
 public class RemotingHelper {
     public static final String ROCKETMQ_REMOTING = "RocketmqRemoting";
@@ -51,17 +52,23 @@ public class RemotingHelper {
         return sb.toString();
     }
 
+    /**
+     * 转换地址为Socket地址包装类
+     *
+     * @param addr 地址
+     * @return Socket地址包装类
+     */
     public static SocketAddress string2SocketAddress(final String addr) {
         int split = addr.lastIndexOf(":");
         String host = addr.substring(0, split);
         String port = addr.substring(split + 1);
-        InetSocketAddress isa = new InetSocketAddress(host, Integer.parseInt(port));
-        return isa;
+        return new InetSocketAddress(host, Integer.parseInt(port));
     }
 
     public static RemotingCommand invokeSync(final String addr, final RemotingCommand request,
-        final long timeoutMillis) throws InterruptedException, RemotingConnectException,
-        RemotingSendRequestException, RemotingTimeoutException {
+                                             final long timeoutMillis) throws InterruptedException,
+            RemotingConnectException,
+            RemotingSendRequestException, RemotingTimeoutException {
         long beginTime = System.currentTimeMillis();
         SocketAddress socketAddress = RemotingUtil.string2SocketAddress(addr);
         SocketChannel socketChannel = RemotingUtil.connect(socketAddress);
@@ -151,6 +158,12 @@ public class RemotingHelper {
         }
     }
 
+    /**
+     * 从通道中解析socket地址，取最后一个/后面的
+     *
+     * @param channel 通道
+     * @return socket地址
+     */
     public static String parseChannelRemoteAddr(final Channel channel) {
         if (null == channel) {
             return "";

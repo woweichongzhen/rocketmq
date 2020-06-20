@@ -17,14 +17,17 @@
 package org.apache.rocketmq.store;
 
 /**
- * When write a message to the commit log, returns results
+ * 写文件到CommitLog返回的结果
  */
 public class AppendMessageResult {
     // Return code
     private AppendMessageStatus status;
     // Where to start writing
     private long wroteOffset;
-    // Write Bytes
+
+    /**
+     * 已写字节
+     */
     private int wroteBytes;
     // Message ID
     private String msgId;
@@ -41,7 +44,7 @@ public class AppendMessageResult {
     }
 
     public AppendMessageResult(AppendMessageStatus status, long wroteOffset, int wroteBytes, String msgId,
-        long storeTimestamp, long logicsOffset, long pagecacheRT) {
+                               long storeTimestamp, long logicsOffset, long pagecacheRT) {
         this.status = status;
         this.wroteOffset = wroteOffset;
         this.wroteBytes = wroteBytes;
@@ -122,14 +125,14 @@ public class AppendMessageResult {
     @Override
     public String toString() {
         return "AppendMessageResult{" +
-            "status=" + status +
-            ", wroteOffset=" + wroteOffset +
-            ", wroteBytes=" + wroteBytes +
-            ", msgId='" + msgId + '\'' +
-            ", storeTimestamp=" + storeTimestamp +
-            ", logicsOffset=" + logicsOffset +
-            ", pagecacheRT=" + pagecacheRT +
-            ", msgNum=" + msgNum +
-            '}';
+                "status=" + status +
+                ", wroteOffset=" + wroteOffset +
+                ", wroteBytes=" + wroteBytes +
+                ", msgId='" + msgId + '\'' +
+                ", storeTimestamp=" + storeTimestamp +
+                ", logicsOffset=" + logicsOffset +
+                ", pagecacheRT=" + pagecacheRT +
+                ", msgNum=" + msgNum +
+                '}';
     }
 }

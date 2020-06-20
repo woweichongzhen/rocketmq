@@ -22,6 +22,9 @@ import org.apache.rocketmq.logging.inner.Logger;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * 内部logger工厂
+ */
 public class InnerLoggerFactory extends InternalLoggerFactory {
 
     public InnerLoggerFactory() {
@@ -40,12 +43,16 @@ public class InnerLoggerFactory extends InternalLoggerFactory {
 
     @Override
     protected void shutdown() {
+        // 内部logger仓库关闭
         Logger.getRepository().shutdown();
     }
 
+    /**
+     * 内部logger的包装类
+     */
     public static class InnerLogger implements InternalLogger {
 
-        private Logger logger;
+        private final Logger logger;
 
         public InnerLogger(String name) {
             logger = Logger.getLogger(name);
@@ -98,6 +105,7 @@ public class InnerLoggerFactory extends InternalLoggerFactory {
 
         @Override
         public void debug(String var1, Object var2) {
+            // 日志格式化
             FormattingTuple format = MessageFormatter.format(var1, var2);
             logger.debug(format.getMessage(), format.getThrowable());
         }
@@ -173,10 +181,24 @@ public class InnerLoggerFactory extends InternalLoggerFactory {
         }
     }
 
-
+    /**
+     * 日志格式化后对象
+     */
     public static class FormattingTuple {
+
+        /**
+         * 信息
+         */
         private String message;
+
+        /**
+         * 异常
+         */
         private Throwable throwable;
+
+        /**
+         * 参数数组
+         */
         private Object[] argArray;
 
         public FormattingTuple(String message) {
@@ -191,9 +213,14 @@ public class InnerLoggerFactory extends InternalLoggerFactory {
             } else {
                 this.argArray = trimmedCopy(argArray);
             }
-
         }
 
+        /**
+         * 不拷贝异常到参数数组中
+         *
+         * @param argArray 原参数数组
+         * @return 不要异常的参数数组
+         */
         static Object[] trimmedCopy(Object[] argArray) {
             if (argArray != null && argArray.length != 0) {
                 int trimemdLen = argArray.length - 1;
@@ -218,6 +245,9 @@ public class InnerLoggerFactory extends InternalLoggerFactory {
         }
     }
 
+    /**
+     * messge格式化
+     */
     public static class MessageFormatter {
 
         public MessageFormatter() {
@@ -231,6 +261,12 @@ public class InnerLoggerFactory extends InternalLoggerFactory {
             return arrayFormat(messagePattern, new Object[]{arg1, arg2});
         }
 
+        /**
+         * 从参数数组中获取最后一个异常参数
+         *
+         * @param argArray 参数数组
+         * @return 异常
+         */
         static Throwable getThrowableCandidate(Object[] argArray) {
             if (argArray != null && argArray.length != 0) {
                 Object lastEntry = argArray[argArray.length - 1];
@@ -240,7 +276,15 @@ public class InnerLoggerFactory extends InternalLoggerFactory {
             }
         }
 
+        /**
+         * 日志格式化
+         *
+         * @param messagePattern meesage格式
+         * @param argArray       参数数组
+         * @return 格式化后对象
+         */
         public static FormattingTuple arrayFormat(String messagePattern, Object[] argArray) {
+            // 获取参数数组中的异常
             Throwable throwableCandidate = getThrowableCandidate(argArray);
             if (messagePattern == null) {
                 return new FormattingTuple(null, argArray, throwableCandidate);

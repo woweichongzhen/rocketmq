@@ -19,31 +19,50 @@ package org.apache.rocketmq.client.common;
 
 import java.util.Random;
 
+/**
+ * 线程计数器
+ */
 public class ThreadLocalIndex {
+
+    /**
+     * 线程计数器
+     */
     private final ThreadLocal<Integer> threadLocalIndex = new ThreadLocal<Integer>();
+
+    /**
+     * 随机值
+     */
     private final Random random = new Random();
 
+    /**
+     * 获取并自增
+     *
+     * @return 自增前的
+     */
     public int getAndIncrement() {
-        Integer index = this.threadLocalIndex.get();
+        Integer index = threadLocalIndex.get();
+        // 如果为空，随机值，如果随机小于0，从0开始
         if (null == index) {
             index = Math.abs(random.nextInt());
-            if (index < 0)
+            if (index < 0) {
                 index = 0;
-            this.threadLocalIndex.set(index);
+            }
+            threadLocalIndex.set(index);
         }
 
         index = Math.abs(index + 1);
-        if (index < 0)
+        if (index < 0) {
             index = 0;
+        }
 
-        this.threadLocalIndex.set(index);
+        threadLocalIndex.set(index);
         return index;
     }
 
     @Override
     public String toString() {
         return "ThreadLocalIndex{" +
-            "threadLocalIndex=" + threadLocalIndex.get() +
-            '}';
+                "threadLocalIndex=" + threadLocalIndex.get() +
+                '}';
     }
 }

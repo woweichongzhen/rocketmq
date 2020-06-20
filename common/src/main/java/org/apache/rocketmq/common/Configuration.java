@@ -28,11 +28,24 @@ import java.util.Properties;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
+/**
+ * 配置对象
+ */
 public class Configuration {
 
+    /**
+     * 内部日志
+     */
     private final InternalLogger log;
 
+    /**
+     * 配置对象集合
+     */
     private List<Object> configObjectList = new ArrayList<Object>(4);
+
+    /**
+     * broker配置路径
+     */
     private String storePath;
     private boolean storePathFromConfig = false;
     private Object storePathObject;
@@ -40,6 +53,7 @@ public class Configuration {
     private DataVersion dataVersion = new DataVersion();
     private ReadWriteLock readWriteLock = new ReentrantReadWriteLock();
     /**
+     * 所有属性配置
      * All properties include configs in object and extend properties.
      */
     private Properties allConfigs = new Properties();
@@ -64,34 +78,38 @@ public class Configuration {
     }
 
     /**
-     * register config object
+     * 注册各个配置到此对象中
      *
-     * @return the current Configuration object
+     * @return 当前配置管理对象
      */
     public Configuration registerConfig(Object configObject) {
         try {
+            // 获取写锁，直到中断
             readWriteLock.writeLock().lockInterruptibly();
 
             try {
-
+                // 解析对象到属性中，合并到当前所有配置中
                 Properties registerProps = MixAll.object2Properties(configObject);
 
-                merge(registerProps, this.allConfigs);
+                // 合并当前配置到所有配置中
+                merge(registerProps, allConfigs);
 
                 configObjectList.add(configObject);
             } finally {
+                // 释放写锁
                 readWriteLock.writeLock().unlock();
             }
         } catch (InterruptedException e) {
+            // 获取写锁中断异常
             log.error("registerConfig lock error");
         }
         return this;
     }
 
     /**
-     * register config properties
+     * 注册属性到配置中
      *
-     * @return the current Configuration object
+     * @return 当前配置管理对象
      */
     public Configuration registerConfig(Properties extProperties) {
         if (extProperties == null) {
@@ -99,14 +117,18 @@ public class Configuration {
         }
 
         try {
+            // 获取写锁直到中断
             readWriteLock.writeLock().lockInterruptibly();
 
+            // 合并当前配置到所有配置中
             try {
                 merge(extProperties, this.allConfigs);
             } finally {
+                // 释放写锁
                 readWriteLock.writeLock().unlock();
             }
         } catch (InterruptedException e) {
+            // 获取锁异常
             log.error("register lock error. {}" + extProperties);
         }
 
@@ -130,7 +152,7 @@ public class Configuration {
                 // check
                 this.storePathField = object.getClass().getDeclaredField(fieldName);
                 assert this.storePathField != null
-                    && !Modifier.isStatic(this.storePathField.getModifiers());
+                        && !Modifier.isStatic(this.storePathField.getModifiers());
                 this.storePathField.setAccessible(true);
             } catch (NoSuchFieldException e) {
                 throw new RuntimeException(e);

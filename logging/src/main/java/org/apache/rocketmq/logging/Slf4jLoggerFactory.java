@@ -20,9 +20,13 @@ package org.apache.rocketmq.logging;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * slf4j日志工厂
+ */
 public class Slf4jLoggerFactory extends InternalLoggerFactory {
 
     public Slf4jLoggerFactory() {
+        // 获取slf4j日志工厂，并注册
         LoggerFactory.getILoggerFactory();
         doRegister();
     }
@@ -42,11 +46,15 @@ public class Slf4jLoggerFactory extends InternalLoggerFactory {
 
     }
 
+    /**
+     * 对slf4j日志logger的包装
+     */
     public static class Slf4jLogger implements InternalLogger {
 
         private Logger logger = null;
 
         public Slf4jLogger(String name) {
+            // 委托给slf4j创建logger
             logger = LoggerFactory.getLogger(name);
         }
 

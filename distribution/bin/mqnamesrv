@@ -15,8 +15,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# 获取MQ环境变量目录
 if [ -z "$ROCKETMQ_HOME" ] ; then
   ## resolve links - $0 may be a link to maven's home
+  # 如果是一个符号链接，就循环解析获取真实路径
   PRG="$0"
 
   # need this for relative symlinks
@@ -42,4 +44,6 @@ fi
 
 export ROCKETMQ_HOME
 
+# 启动namesrv
+# 启动脚本 main类 其他参数透传
 sh ${ROCKETMQ_HOME}/bin/runserver.sh org.apache.rocketmq.namesrv.NamesrvStartup $@

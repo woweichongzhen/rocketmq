@@ -24,6 +24,10 @@ public class NettyClientConfig {
     private int clientCallbackExecutorThreads = Runtime.getRuntime().availableProcessors();
     private int clientOnewaySemaphoreValue = NettySystemConfig.CLIENT_ONEWAY_SEMAPHORE_VALUE;
     private int clientAsyncSemaphoreValue = NettySystemConfig.CLIENT_ASYNC_SEMAPHORE_VALUE;
+
+    /**
+     * 连接Namesrv超时时间
+     */
     private int connectTimeoutMillis = 3000;
     private long channelNotActiveInterval = 1000 * 60;
 
@@ -36,6 +40,10 @@ public class NettyClientConfig {
     private int clientSocketSndBufSize = NettySystemConfig.socketSndbufSize;
     private int clientSocketRcvBufSize = NettySystemConfig.socketRcvbufSize;
     private boolean clientPooledByteBufAllocatorEnable = false;
+
+    /**
+     * 客户端请求超时是否关闭socket连接，默认不关闭
+     */
     private boolean clientCloseSocketIfTimeout = false;
 
     private boolean useTLS;

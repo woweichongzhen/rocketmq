@@ -19,29 +19,44 @@ package org.apache.rocketmq.remoting.common;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
+import org.apache.rocketmq.logging.InternalLogger;
+import org.apache.rocketmq.logging.InternalLoggerFactory;
+
 import java.io.IOException;
 import java.lang.reflect.Method;
-import java.net.Inet6Address;
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
-import java.net.NetworkInterface;
-import java.net.SocketAddress;
+import java.net.*;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
 import java.nio.channels.spi.SelectorProvider;
 import java.util.ArrayList;
 import java.util.Enumeration;
-import org.apache.rocketmq.logging.InternalLogger;
-import org.apache.rocketmq.logging.InternalLoggerFactory;
 
+/**
+ * 远程工具类
+ */
 public class RemotingUtil {
+
+    /**
+     * 操作系统名称
+     */
     public static final String OS_NAME = System.getProperty("os.name");
 
     private static final InternalLogger log = InternalLoggerFactory.getLogger(RemotingHelper.ROCKETMQ_REMOTING);
+
+    /**
+     * 是否为linux平台
+     */
     private static boolean isLinuxPlatform = false;
+
+    /**
+     * 是否为windows平台
+     */
     private static boolean isWindowsPlatform = false;
 
     static {
+        /*
+         * 如果包含linux，则为linux平台，如果包含windows，则为windows平台
+         */
         if (OS_NAME != null && OS_NAME.toLowerCase().contains("linux")) {
             isLinuxPlatform = true;
         }
@@ -86,6 +101,11 @@ public class RemotingUtil {
         return result;
     }
 
+    /**
+     * 判断是否为linux平台
+     *
+     * @return true是，false不是
+     */
     public static boolean isLinuxPlatform() {
         return isLinuxPlatform;
     }
@@ -143,12 +163,17 @@ public class RemotingUtil {
         }
     }
 
+    /**
+     * 解析服务地址为SocketAddress类
+     *
+     * @param addr 服务地址
+     * @return socket地址类
+     */
     public static SocketAddress string2SocketAddress(final String addr) {
         int split = addr.lastIndexOf(":");
         String host = addr.substring(0, split);
         String port = addr.substring(split + 1);
-        InetSocketAddress isa = new InetSocketAddress(host, Integer.parseInt(port));
-        return isa;
+        return new InetSocketAddress(host, Integer.parseInt(port));
     }
 
     public static String socketAddress2String(final SocketAddress addr) {
@@ -189,13 +214,18 @@ public class RemotingUtil {
         return null;
     }
 
+    /**
+     * 关闭通道
+     *
+     * @param channel 通道
+     */
     public static void closeChannel(Channel channel) {
         final String addrRemote = RemotingHelper.parseChannelRemoteAddr(channel);
         channel.close().addListener(new ChannelFutureListener() {
             @Override
             public void operationComplete(ChannelFuture future) throws Exception {
                 log.info("closeChannel: close the connection to remote address[{}] result: {}", addrRemote,
-                    future.isSuccess());
+                        future.isSuccess());
             }
         });
     }

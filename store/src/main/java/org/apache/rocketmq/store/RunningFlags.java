@@ -16,6 +16,9 @@
  */
 package org.apache.rocketmq.store;
 
+/**
+ * broker运行参数标记
+ */
 public class RunningFlags {
 
     private static final int NOT_READABLE_BIT = 1;
@@ -70,7 +73,7 @@ public class RunningFlags {
     }
 
     public boolean isWriteable() {
-        if ((this.flagBits & (NOT_WRITEABLE_BIT | WRITE_LOGICS_QUEUE_ERROR_BIT | DISK_FULL_BIT | WRITE_INDEX_FILE_ERROR_BIT)) == 0) {
+        if ((flagBits & (NOT_WRITEABLE_BIT | WRITE_LOGICS_QUEUE_ERROR_BIT | DISK_FULL_BIT | WRITE_INDEX_FILE_ERROR_BIT)) == 0) {
             return true;
         }
 

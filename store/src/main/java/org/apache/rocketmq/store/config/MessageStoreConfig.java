@@ -16,39 +16,71 @@
  */
 package org.apache.rocketmq.store.config;
 
-import java.io.File;
 import org.apache.rocketmq.common.annotation.ImportantField;
 import org.apache.rocketmq.store.ConsumeQueue;
 
+import java.io.File;
+
+/**
+ * 消息存储配置
+ */
 public class MessageStoreConfig {
-    //The root directory in which the log data is kept
+    /**
+     * store根目录
+     */
     @ImportantField
     private String storePathRootDir = System.getProperty("user.home") + File.separator + "store";
 
-    //The directory in which the commitlog is kept
+    /**
+     * CommitLog存储目录
+     */
     @ImportantField
     private String storePathCommitLog = System.getProperty("user.home") + File.separator + "store"
-        + File.separator + "commitlog";
+            + File.separator + "commitlog";
 
-    // CommitLog file size,default is 1G
+    /**
+     * CommitLog 映射文件大小，最大1G
+     */
     private int mappedFileSizeCommitLog = 1024 * 1024 * 1024;
-    // ConsumeQueue file size,default is 30W
+
+    /**
+     * ConsumeQueue 文件大小，默认30W
+     */
     private int mappedFileSizeConsumeQueue = 300000 * ConsumeQueue.CQ_STORE_UNIT_SIZE;
-    // enable consume queue ext
+
+    /**
+     * 是否启用消费队列扩展，默认不启用
+     */
     private boolean enableConsumeQueueExt = false;
-    // ConsumeQueue extend file size, 48M
+
+    /**
+     * 消费队列扩展大小，默认48M
+     */
     private int mappedFileSizeConsumeQueueExt = 48 * 1024 * 1024;
-    // Bit count of filter bit map.
-    // this will be set by pipe of calculate filter bit map.
+
+    /**
+     * 消费队列bitMap扩展长度，64
+     * <p>
+     * 过滤器位图的位数
+     * 将通过管道计算过滤器位图进行设置
+     * <p>
+     * Bit count of filter bit map.
+     * this will be set by pipe of calculate filter bit map.
+     */
     private int bitMapLengthConsumeQueueExt = 64;
 
-    // CommitLog flush interval
-    // flush data to disk
+    /**
+     * CommitLog flush 周期
+     * flush数据到磁盘中
+     */
     @ImportantField
     private int flushIntervalCommitLog = 500;
 
     // Only used if TransientStorePool enabled
     // flush data to FileChannel
+    /**
+     * 如果启用持久化池时使用该参数，每200毫秒flush data 到 FileChannel中
+     */
     @ImportantField
     private int commitIntervalCommitLog = 200;
 
@@ -63,7 +95,10 @@ public class MessageStoreConfig {
     private boolean flushCommitLogTimed = false;
     // ConsumeQueue flush interval
     private int flushIntervalConsumeQueue = 1000;
-    // Resource reclaim interval
+
+    /**
+     * 清理资源定时任务，10S
+     */
     private int cleanResourceInterval = 10000;
     // CommitLog removal interval
     private int deleteCommitLogFilesInterval = 100;
@@ -107,6 +142,10 @@ public class MessageStoreConfig {
     private int maxTransferCountOnMessageInDisk = 8;
     @ImportantField
     private int accessMessageInMemoryMaxRatio = 40;
+
+    /**
+     * 消息索引文件是否启用，默认启用
+     */
     @ImportantField
     private boolean messageIndexEnable = true;
     private int maxHashSlotNum = 5000000;
@@ -121,20 +160,40 @@ public class MessageStoreConfig {
     @ImportantField
     private String haMasterAddress = null;
     private int haSlaveFallbehindMax = 1024 * 1024 * 256;
+
+    /**
+     * broker角色，默认异步同步主从消息
+     */
     @ImportantField
     private BrokerRole brokerRole = BrokerRole.ASYNC_MASTER;
+
+    /**
+     * 获取flush磁盘类型，默认异步flsuh
+     */
     @ImportantField
     private FlushDiskType flushDiskType = FlushDiskType.ASYNC_FLUSH;
+
+    /**
+     * 同步flush超时，5S
+     */
     private int syncFlushTimeout = 1000 * 5;
     private String messageDelayLevel = "1s 5s 10s 30s 1m 2m 3m 4m 5m 6m 7m 8m 9m 10m 20m 30m 1h 2h";
     private long flushDelayOffsetInterval = 1000 * 10;
     @ImportantField
     private boolean cleanFileForciblyEnable = true;
+
+    /**
+     * 热内存文件是否启用
+     */
     private boolean warmMapedFileEnable = false;
     private boolean offsetCheckInSlave = false;
     private boolean debugLockEnable = false;
     private boolean duplicationEnable = false;
     private boolean diskFallRecorded = true;
+
+    /**
+     * PageCache繁忙超时时间
+     */
     private long osPageCacheBusyTimeOutMills = 1000;
     private int defaultQueryMaxNum = 32;
 
@@ -196,8 +255,12 @@ public class MessageStoreConfig {
         this.mappedFileSizeCommitLog = mappedFileSizeCommitLog;
     }
 
+    /**
+     * 消费队列文件大小
+     *
+     * @return
+     */
     public int getMappedFileSizeConsumeQueue() {
-
         int factor = (int) Math.ceil(this.mappedFileSizeConsumeQueue / (ConsumeQueue.CQ_STORE_UNIT_SIZE * 1.0));
         return (int) (factor * ConsumeQueue.CQ_STORE_UNIT_SIZE);
     }
@@ -616,7 +679,7 @@ public class MessageStoreConfig {
      */
     public boolean isTransientStorePoolEnable() {
         return transientStorePoolEnable && FlushDiskType.ASYNC_FLUSH == getFlushDiskType()
-            && BrokerRole.SLAVE != getBrokerRole();
+                && BrokerRole.SLAVE != getBrokerRole();
     }
 
     public void setTransientStorePoolEnable(final boolean transientStorePoolEnable) {

@@ -17,16 +17,34 @@
 
 package org.apache.rocketmq.common.protocol.route;
 
+import org.apache.rocketmq.common.MixAll;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
-import org.apache.rocketmq.common.MixAll;
 
+/**
+ * broker相关数据
+ */
 public class BrokerData implements Comparable<BrokerData> {
+
+    /**
+     * 集群名称
+     */
     private String cluster;
+
+    /**
+     * broker名称
+     */
     private String brokerName;
-    private HashMap<Long/* brokerId */, String/* broker address */> brokerAddrs;
+
+    /**
+     * 同名broker的id和地址缓存
+     * key：brokerId
+     * value：broker地址
+     */
+    private HashMap<Long, String> brokerAddrs;
 
     private final Random random = new Random();
 

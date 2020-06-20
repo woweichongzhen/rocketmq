@@ -19,14 +19,25 @@ package org.apache.rocketmq.client.exception;
 import org.apache.rocketmq.common.UtilAll;
 import org.apache.rocketmq.common.help.FAQUrl;
 
+/**
+ * mq broker异常
+ */
 public class MQBrokerException extends Exception {
     private static final long serialVersionUID = 5975020272601250368L;
+
+    /**
+     * 返回码
+     */
     private final int responseCode;
+
+    /**
+     * 错误信息
+     */
     private final String errorMessage;
 
     public MQBrokerException(int responseCode, String errorMessage) {
         super(FAQUrl.attachDefaultURL("CODE: " + UtilAll.responseCode2String(responseCode) + "  DESC: "
-            + errorMessage));
+                + errorMessage));
         this.responseCode = responseCode;
         this.errorMessage = errorMessage;
     }

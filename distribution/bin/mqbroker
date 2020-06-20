@@ -42,4 +42,5 @@ fi
 
 export ROCKETMQ_HOME
 
+# 启动broker
 sh ${ROCKETMQ_HOME}/bin/runbroker.sh org.apache.rocketmq.broker.BrokerStartup $@

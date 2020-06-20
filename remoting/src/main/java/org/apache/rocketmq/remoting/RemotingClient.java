@@ -18,6 +18,7 @@ package org.apache.rocketmq.remoting;
 
 import java.util.List;
 import java.util.concurrent.ExecutorService;
+
 import org.apache.rocketmq.remoting.exception.RemotingConnectException;
 import org.apache.rocketmq.remoting.exception.RemotingSendRequestException;
 import org.apache.rocketmq.remoting.exception.RemotingTimeoutException;
@@ -25,26 +26,53 @@ import org.apache.rocketmq.remoting.exception.RemotingTooMuchRequestException;
 import org.apache.rocketmq.remoting.netty.NettyRequestProcessor;
 import org.apache.rocketmq.remoting.protocol.RemotingCommand;
 
+/**
+ * 远端客户请求
+ */
 public interface RemotingClient extends RemotingService {
 
     void updateNameServerAddressList(final List<String> addrs);
 
     List<String> getNameServerAddressList();
 
+    /**
+     * 同步执行请求
+     *
+     * @param addr          地址
+     * @param request       请求命令
+     * @param timeoutMillis 超时时间
+     * @return 命令返回
+     * @throws InterruptedException
+     * @throws RemotingConnectException
+     * @throws RemotingSendRequestException
+     * @throws RemotingTimeoutException
+     */
     RemotingCommand invokeSync(final String addr, final RemotingCommand request,
-        final long timeoutMillis) throws InterruptedException, RemotingConnectException,
-        RemotingSendRequestException, RemotingTimeoutException;
+                               final long timeoutMillis) throws InterruptedException, RemotingConnectException,
+            RemotingSendRequestException, RemotingTimeoutException;
 
     void invokeAsync(final String addr, final RemotingCommand request, final long timeoutMillis,
-        final InvokeCallback invokeCallback) throws InterruptedException, RemotingConnectException,
-        RemotingTooMuchRequestException, RemotingTimeoutException, RemotingSendRequestException;
+                     final InvokeCallback invokeCallback) throws InterruptedException, RemotingConnectException,
+            RemotingTooMuchRequestException, RemotingTimeoutException, RemotingSendRequestException;
 
+    /**
+     * 单向请求
+     *
+     * @param addr          请求地址
+     * @param request       请求命令
+     * @param timeoutMillis 超时时间
+     * @throws InterruptedException
+     * @throws RemotingConnectException
+     * @throws RemotingTooMuchRequestException
+     * @throws RemotingTimeoutException
+     * @throws RemotingSendRequestException
+     */
     void invokeOneway(final String addr, final RemotingCommand request, final long timeoutMillis)
-        throws InterruptedException, RemotingConnectException, RemotingTooMuchRequestException,
-        RemotingTimeoutException, RemotingSendRequestException;
+            throws InterruptedException, RemotingConnectException, RemotingTooMuchRequestException,
+            RemotingTimeoutException, RemotingSendRequestException;
 
     void registerProcessor(final int requestCode, final NettyRequestProcessor processor,
-        final ExecutorService executor);
+                           final ExecutorService executor);
 
     void setCallbackExecutor(final ExecutorService callbackExecutor);
 

@@ -16,23 +16,30 @@
  */
 package org.apache.rocketmq.srvutil;
 
-import java.util.Properties;
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.HelpFormatter;
-import org.apache.commons.cli.Option;
-import org.apache.commons.cli.Options;
-import org.apache.commons.cli.ParseException;
+import org.apache.commons.cli.*;
 
+import java.util.Properties;
+
+/**
+ * srv工具类
+ */
 public class ServerUtil {
 
+    /**
+     * 构建命令行选项
+     *
+     * @param options 选项
+     * @return 命令行选项
+     */
     public static Options buildCommandlineOptions(final Options options) {
+        // 帮助
+        // 短参数，长参数，描述，非必须
         Option opt = new Option("h", "help", false, "Print help");
         opt.setRequired(false);
         options.addOption(opt);
 
-        opt =
-            new Option("n", "namesrvAddr", true,
+        // namesrv地址，非必须
+        opt = new Option("n", "namesrvAddr", true,
                 "Name server address list, eg: 192.168.0.1:9876;192.168.0.2:9876");
         opt.setRequired(false);
         options.addOption(opt);
@@ -40,18 +47,30 @@ public class ServerUtil {
         return options;
     }
 
+    /**
+     * 解析cmd命令行
+     *
+     * @param appName 应用名称
+     * @param args    命令行参数
+     * @param options 选项
+     * @param parser  命令行解析器
+     * @return 命令行
+     */
     public static CommandLine parseCmdLine(final String appName, String[] args, Options options,
-        CommandLineParser parser) {
+                                           CommandLineParser parser) {
+        // 格式化辅助类
         HelpFormatter hf = new HelpFormatter();
         hf.setWidth(110);
         CommandLine commandLine = null;
         try {
             commandLine = parser.parse(options, args);
+            // 如果存在 -h，打印相关帮助，退出程序
             if (commandLine.hasOption('h')) {
                 hf.printHelp(appName, options, true);
                 System.exit(0);
             }
         } catch (ParseException e) {
+            // 解析异常，打印帮助，退出程序
             hf.printHelp(appName, options, true);
             System.exit(1);
         }
@@ -65,10 +84,17 @@ public class ServerUtil {
         hf.printHelp(appName, options, true);
     }
 
+    /**
+     * 命令行转为属性
+     *
+     * @param commandLine 命令行
+     * @return 属性
+     */
     public static Properties commandLine2Properties(final CommandLine commandLine) {
         Properties properties = new Properties();
         Option[] opts = commandLine.getOptions();
 
+        // 遍历命令行参数，设置长参数和value到属性中
         if (opts != null) {
             for (Option opt : opts) {
                 String name = opt.getLongOpt();

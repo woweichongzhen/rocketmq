@@ -16,52 +16,83 @@
  */
 package org.apache.rocketmq.common;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.InputStream;
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.net.Inet6Address;
-import java.net.InetAddress;
-import java.net.NetworkInterface;
-import java.net.SocketException;
-import java.net.URL;
-import java.net.URLConnection;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.concurrent.atomic.AtomicLong;
 import org.apache.rocketmq.common.annotation.ImportantField;
 import org.apache.rocketmq.common.constant.LoggerName;
 import org.apache.rocketmq.common.help.FAQUrl;
 import org.apache.rocketmq.logging.InternalLogger;
 import org.apache.rocketmq.logging.InternalLoggerFactory;
 
+import java.io.*;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.net.*;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicLong;
+
+/**
+ * 混合所有属性
+ */
 public class MixAll {
+
+    /**
+     * 主目录环境变量key
+     */
     public static final String ROCKETMQ_HOME_ENV = "ROCKETMQ_HOME";
+
+    /**
+     * rocketmq主目录属性key
+     */
     public static final String ROCKETMQ_HOME_PROPERTY = "rocketmq.home.dir";
     public static final String NAMESRV_ADDR_ENV = "NAMESRV_ADDR";
     public static final String NAMESRV_ADDR_PROPERTY = "rocketmq.namesrv.addr";
+
+    /**
+     * 消息压缩等级
+     */
     public static final String MESSAGE_COMPRESS_LEVEL = "rocketmq.message.compressLevel";
+
+    /**
+     * 默认namesrv域名
+     */
     public static final String DEFAULT_NAMESRV_ADDR_LOOKUP = "jmenv.tbsite.net";
-    public static final String WS_DOMAIN_NAME = System.getProperty("rocketmq.namesrv.domain", DEFAULT_NAMESRV_ADDR_LOOKUP);
+
+    /**
+     * namesrv域名
+     */
+    public static final String WS_DOMAIN_NAME = System.getProperty("rocketmq.namesrv.domain",
+            DEFAULT_NAMESRV_ADDR_LOOKUP);
+
+    /**
+     * namesrv域名子组
+     */
     public static final String WS_DOMAIN_SUBGROUP = System.getProperty("rocketmq.namesrv.domain.subgroup", "nsaddr");
     //http://jmenv.tbsite.net:8080/rocketmq/nsaddr
     //public static final String WS_ADDR = "http://" + WS_DOMAIN_NAME + ":8080/rocketmq/" + WS_DOMAIN_SUBGROUP;
-    public static final String AUTO_CREATE_TOPIC_KEY_TOPIC = "TBW102"; // Will be created at broker when isAutoCreateTopicEnable
+    /**
+     * 自动创建的topic，仅用于测试
+     */
+    public static final String AUTO_CREATE_TOPIC_KEY_TOPIC = "TBW102";
+    // isAutoCreateTopicEnable
     public static final String BENCHMARK_TOPIC = "BenchmarkTest";
+
+    /**
+     * 默认生产者组名
+     */
     public static final String DEFAULT_PRODUCER_GROUP = "DEFAULT_PRODUCER";
+
+    /**
+     * 默认消费者组名
+     */
     public static final String DEFAULT_CONSUMER_GROUP = "DEFAULT_CONSUMER";
     public static final String TOOLS_CONSUMER_GROUP = "TOOLS_CONSUMER";
     public static final String FILTERSRV_CONSUMER_GROUP = "FILTERSRV_CONSUMER";
     public static final String MONITOR_CONSUMER_GROUP = "__MONITOR_CONSUMER";
+
+    /**
+     * 客户端内部生产者组名
+     */
     public static final String CLIENT_INNER_PRODUCER_GROUP = "CLIENT_INNER_PRODUCER";
     public static final String SELF_TEST_PRODUCER_GROUP = "SELF_TEST_P_GROUP";
     public static final String SELF_TEST_CONSUMER_GROUP = "SELF_TEST_C_GROUP";
@@ -75,13 +106,25 @@ public class MixAll {
     public static final List<String> LOCAL_INET_ADDRESS = getLocalInetAddress();
     public static final String LOCALHOST = localhost();
     public static final String DEFAULT_CHARSET = "UTF-8";
+
+    /**
+     * master brokerId 默认为0
+     */
     public static final long MASTER_ID = 0L;
     public static final long CURRENT_JVM_PID = getPID();
+
+    /**
+     * 重试组topic前缀
+     */
     public static final String RETRY_GROUP_TOPIC_PREFIX = "%RETRY%";
     public static final String DLQ_GROUP_TOPIC_PREFIX = "%DLQ%";
     public static final String REPLY_TOPIC_POSTFIX = "REPLY_TOPIC";
     public static final String SYSTEM_TOPIC_PREFIX = "rmq_sys_";
     public static final String UNIQUE_MSG_QUERY_FLAG = "_UNIQUE_KEY_QUERY";
+
+    /**
+     * 默认broker源
+     */
     public static final String DEFAULT_TRACE_REGION_ID = "DefaultRegion";
     public static final String CONSUME_CONTEXT_TYPE = "ConsumeContextType";
     public static final String RMQ_SYS_TRANS_HALF_TOPIC = "RMQ_SYS_TRANS_HALF_TOPIC";
@@ -123,13 +166,19 @@ public class MixAll {
         return DLQ_GROUP_TOPIC_PREFIX + consumerGroup;
     }
 
+    /**
+     * broker虚拟IP通道，也就是原端口-2
+     *
+     * @param isChange   是否改变
+     * @param brokerAddr broker地址
+     * @return broker地址
+     */
     public static String brokerVIPChannel(final boolean isChange, final String brokerAddr) {
         if (isChange) {
             int split = brokerAddr.lastIndexOf(":");
             String ip = brokerAddr.substring(0, split);
             String port = brokerAddr.substring(split + 1);
-            String brokerAddrNew = ip + ":" + (Integer.parseInt(port) - 2);
-            return brokerAddrNew;
+            return ip + ":" + (Integer.parseInt(port) - 2);
         } else {
             return brokerAddr;
         }
@@ -237,17 +286,34 @@ public class MixAll {
         return null;
     }
 
+    /**
+     * 打印配置类中参数日志
+     *
+     * @param logger 内部日志对象
+     * @param object 配置类
+     */
     public static void printObjectProperties(final InternalLogger logger, final Object object) {
         printObjectProperties(logger, object, false);
     }
 
+    /**
+     * 打印配置类中参数日志
+     *
+     * @param logger             内部日志对象
+     * @param object             配置类
+     * @param onlyImportantField 是否仅打印 {@link ImportantField} 注解标注的属性
+     */
     public static void printObjectProperties(final InternalLogger logger, final Object object,
-        final boolean onlyImportantField) {
+                                             final boolean onlyImportantField) {
+        // 获取配置类中域
         Field[] fields = object.getClass().getDeclaredFields();
         for (Field field : fields) {
+            // 非 static 修饰
             if (!Modifier.isStatic(field.getModifiers())) {
                 String name = field.getName();
+                // 非 this 修饰
                 if (!name.startsWith("this")) {
+                    // 获取域对象
                     Object value = null;
                     try {
                         field.setAccessible(true);
@@ -259,6 +325,7 @@ public class MixAll {
                         log.error("Failed to obtain object properties", e);
                     }
 
+                    // 如果仅打印指定注解标注的域，获取导入注解标注的域
                     if (onlyImportantField) {
                         Annotation annotation = field.getAnnotation(ImportantField.class);
                         if (null == annotation) {
@@ -266,6 +333,7 @@ public class MixAll {
                         }
                     }
 
+                    // 打印key-value日志
                     if (logger != null) {
                         logger.info(name + "=" + value);
                     } else {
@@ -298,6 +366,12 @@ public class MixAll {
         return properties;
     }
 
+    /**
+     * 解析配置对象到属性
+     *
+     * @param object 配置对象
+     * @return 属性
+     */
     public static Properties object2Properties(final Object object) {
         Properties properties = new Properties();
 
@@ -306,6 +380,7 @@ public class MixAll {
             if (!Modifier.isStatic(field.getModifiers())) {
                 String name = field.getName();
                 if (!name.startsWith("this")) {
+                    // 获取对象域的值，设置域名和域值到属性中
                     Object value = null;
                     try {
                         field.setAccessible(true);
@@ -324,37 +399,51 @@ public class MixAll {
         return properties;
     }
 
+    /**
+     * 解析属性到配置对象中
+     *
+     * @param p      属性
+     * @param object 配置对象
+     */
     public static void properties2Object(final Properties p, final Object object) {
         Method[] methods = object.getClass().getMethods();
+        // 遍历配置对象的set方法
         for (Method method : methods) {
             String mn = method.getName();
             if (mn.startsWith("set")) {
                 try {
+                    // 比如setName ，截取 ame
                     String tmp = mn.substring(4);
+                    // 比如setName ，截取 N
                     String first = mn.substring(3, 4);
 
+                    // 组装属性key ，即 name ，并获取
                     String key = first.toLowerCase() + tmp;
                     String property = p.getProperty(key);
+
                     if (property != null) {
+                        // 如果存在属性，遍历获取方法的参数列表，如果存在，获取第一个参数的类型的小驼峰名称
                         Class<?>[] pt = method.getParameterTypes();
                         if (pt != null && pt.length > 0) {
                             String cn = pt[0].getSimpleName();
-                            Object arg = null;
-                            if (cn.equals("int") || cn.equals("Integer")) {
+                            // 比对参数的类型，解析基本类型，转换String到对应的类型
+                            Object arg;
+                            if ("int".equals(cn) || "Integer".equals(cn)) {
                                 arg = Integer.parseInt(property);
-                            } else if (cn.equals("long") || cn.equals("Long")) {
+                            } else if ("long".equals(cn) || "Long".equals(cn)) {
                                 arg = Long.parseLong(property);
-                            } else if (cn.equals("double") || cn.equals("Double")) {
+                            } else if ("double".equals(cn) || "Double".equals(cn)) {
                                 arg = Double.parseDouble(property);
-                            } else if (cn.equals("boolean") || cn.equals("Boolean")) {
+                            } else if ("boolean".equals(cn) || "Boolean".equals(cn)) {
                                 arg = Boolean.parseBoolean(property);
-                            } else if (cn.equals("float") || cn.equals("Float")) {
+                            } else if ("float".equals(cn) || "Float".equals(cn)) {
                                 arg = Float.parseFloat(property);
-                            } else if (cn.equals("String")) {
+                            } else if ("String".equals(cn)) {
                                 arg = property;
                             } else {
                                 continue;
                             }
+                            // 解析之后，反射注入值
                             method.invoke(object, arg);
                         }
                     }

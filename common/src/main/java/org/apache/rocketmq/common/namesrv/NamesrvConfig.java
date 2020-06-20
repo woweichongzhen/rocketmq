@@ -20,20 +20,61 @@
  */
 package org.apache.rocketmq.common.namesrv;
 
-import java.io.File;
 import org.apache.rocketmq.common.MixAll;
 import org.apache.rocketmq.common.constant.LoggerName;
 import org.apache.rocketmq.logging.InternalLogger;
 import org.apache.rocketmq.logging.InternalLoggerFactory;
 
+import java.io.File;
+
+/**
+ * namesrv配置
+ */
 public class NamesrvConfig {
+
     private static final InternalLogger log = InternalLoggerFactory.getLogger(LoggerName.NAMESRV_LOGGER_NAME);
 
-    private String rocketmqHome = System.getProperty(MixAll.ROCKETMQ_HOME_PROPERTY, System.getenv(MixAll.ROCKETMQ_HOME_ENV));
-    private String kvConfigPath = System.getProperty("user.home") + File.separator + "namesrv" + File.separator + "kvConfig.json";
-    private String configStorePath = System.getProperty("user.home") + File.separator + "namesrv" + File.separator + "namesrv.properties";
+    /**
+     * 环境变量中主目录，优先从属性中获取，后从环境变量中获取
+     */
+    private String rocketmqHome = System.getProperty(MixAll.ROCKETMQ_HOME_PROPERTY,
+            System.getenv(MixAll.ROCKETMQ_HOME_ENV));
+
+    /**
+     * 存放kv配置json路径
+     */
+    private String kvConfigPath =
+            System.getProperty("user.home") +
+                    File.separator +
+                    "namesrv" +
+                    File.separator +
+                    "kvConfig.json";
+
+    /**
+     * 自己的配置文件地址
+     * 默认用户主目录/namesrv/namesrv.properties
+     */
+    private String configStorePath =
+            System.getProperty("user.home") +
+                    File.separator +
+                    "namesrv" +
+                    File.separator +
+                    "namesrv.properties";
+
+    /**
+     * 生产环境名称，默认center
+     */
     private String productEnvName = "center";
+
+    /**
+     * '
+     * 是否为集群测试，默认false
+     */
     private boolean clusterTest = false;
+
+    /**
+     * 是否支持有序消息，默认false
+     */
     private boolean orderMessageEnable = false;
 
     public boolean isOrderMessageEnable() {

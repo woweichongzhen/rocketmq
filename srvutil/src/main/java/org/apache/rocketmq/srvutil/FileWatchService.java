@@ -17,6 +17,13 @@
 
 package org.apache.rocketmq.srvutil;
 
+import org.apache.commons.lang3.StringUtils;
+import org.apache.rocketmq.common.ServiceThread;
+import org.apache.rocketmq.common.UtilAll;
+import org.apache.rocketmq.common.constant.LoggerName;
+import org.apache.rocketmq.logging.InternalLogger;
+import org.apache.rocketmq.logging.InternalLoggerFactory;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -26,13 +33,10 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.rocketmq.common.ServiceThread;
-import org.apache.rocketmq.common.UtilAll;
-import org.apache.rocketmq.common.constant.LoggerName;
-import org.apache.rocketmq.logging.InternalLogger;
-import org.apache.rocketmq.logging.InternalLoggerFactory;
 
+/**
+ * 文件监控服务
+ */
 public class FileWatchService extends ServiceThread {
     private static final InternalLogger log = InternalLoggerFactory.getLogger(LoggerName.COMMON_LOGGER_NAME);
 
@@ -43,7 +47,7 @@ public class FileWatchService extends ServiceThread {
     private MessageDigest md = MessageDigest.getInstance("MD5");
 
     public FileWatchService(final String[] watchFiles,
-        final Listener listener) throws Exception {
+                            final Listener listener) throws Exception {
         this.listener = listener;
         this.watchFiles = new ArrayList<>();
         this.fileCurrentHash = new ArrayList<>();
@@ -74,7 +78,8 @@ public class FileWatchService extends ServiceThread {
                     try {
                         newHash = hash(watchFiles.get(i));
                     } catch (Exception ignored) {
-                        log.warn(this.getServiceName() + " service has exception when calculate the file hash. ", ignored);
+                        log.warn(this.getServiceName() + " service has exception when calculate the file hash. ",
+                                ignored);
                         continue;
                     }
                     if (!newHash.equals(fileCurrentHash.get(i))) {
@@ -99,6 +104,7 @@ public class FileWatchService extends ServiceThread {
     public interface Listener {
         /**
          * Will be called when the target files are changed
+         *
          * @param path the changed file path
          */
         void onChanged(String path);

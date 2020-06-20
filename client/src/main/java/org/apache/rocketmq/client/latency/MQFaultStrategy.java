@@ -19,13 +19,23 @@ package org.apache.rocketmq.client.latency;
 
 import org.apache.rocketmq.client.impl.producer.TopicPublishInfo;
 import org.apache.rocketmq.client.log.ClientLogger;
-import org.apache.rocketmq.logging.InternalLogger;
 import org.apache.rocketmq.common.message.MessageQueue;
+import org.apache.rocketmq.logging.InternalLogger;
 
+/**
+ * mq故障策略
+ */
 public class MQFaultStrategy {
     private final static InternalLogger log = ClientLogger.getLog();
+
+    /**
+     * 延迟容错
+     */
     private final LatencyFaultTolerance<String> latencyFaultTolerance = new LatencyFaultToleranceImpl();
 
+    /**
+     * 是否启用故障回避机制，默认false
+     */
     private boolean sendLatencyFaultEnable = false;
 
     private long[] latencyMax = {50L, 100L, 550L, 1000L, 2000L, 3000L, 15000L};
@@ -55,21 +65,36 @@ public class MQFaultStrategy {
         this.sendLatencyFaultEnable = sendLatencyFaultEnable;
     }
 
+    /**
+     * 选择一个消息队列
+     *
+     * @param tpInfo         topic发布信息
+     * @param lastBrokerName 上次使用的broker名称
+     * @return 消息队列
+     */
     public MessageQueue selectOneMessageQueue(final TopicPublishInfo tpInfo, final String lastBrokerName) {
-        if (this.sendLatencyFaultEnable) {
+        if (sendLatencyFaultEnable) {
+            // 如果启用发送故障回避机制
             try {
+                // 获取发送队列使用的递增值
                 int index = tpInfo.getSendWhichQueue().getAndIncrement();
                 for (int i = 0; i < tpInfo.getMessageQueueList().size(); i++) {
+                    // 取模
                     int pos = Math.abs(index++) % tpInfo.getMessageQueueList().size();
-                    if (pos < 0)
+                    if (pos < 0) {
                         pos = 0;
+                    }
+                    // 获取取模后的队列
                     MessageQueue mq = tpInfo.getMessageQueueList().get(pos);
+                    // 如果随机挑选的队列的broker已经到了容错时间，则说明队列可以使用
                     if (latencyFaultTolerance.isAvailable(mq.getBrokerName())) {
-                        if (null == lastBrokerName || mq.getBrokerName().equals(lastBrokerName))
+                        if (null == lastBrokerName || mq.getBrokerName().equals(lastBrokerName)) {
                             return mq;
+                        }
                     }
                 }
 
+                // 否则重新挑选一个最小的broker，然后获取对应broker的可写队列大小，如果存在，则再取模取下一个
                 final String notBestBroker = latencyFaultTolerance.pickOneAtLeast();
                 int writeQueueNums = tpInfo.getQueueIdByBroker(notBestBroker);
                 if (writeQueueNums > 0) {
@@ -80,15 +105,18 @@ public class MQFaultStrategy {
                     }
                     return mq;
                 } else {
+                    // 如果这个broker没有可写队列，从故障容错中移除掉
                     latencyFaultTolerance.remove(notBestBroker);
                 }
             } catch (Exception e) {
                 log.error("Error occurred when selecting message queue", e);
             }
 
+            // 最后都没有，继续取模获取下一个
             return tpInfo.selectOneMessageQueue();
         }
 
+        // 如果没有容错策略，则继续取之前的broker的一个队列
         return tpInfo.selectOneMessageQueue(lastBrokerName);
     }
 

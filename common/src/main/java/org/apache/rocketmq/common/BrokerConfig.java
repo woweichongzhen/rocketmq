@@ -16,8 +16,6 @@
  */
 package org.apache.rocketmq.common;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import org.apache.rocketmq.common.annotation.ImportantField;
 import org.apache.rocketmq.common.constant.LoggerName;
 import org.apache.rocketmq.common.constant.PermName;
@@ -25,17 +23,34 @@ import org.apache.rocketmq.logging.InternalLogger;
 import org.apache.rocketmq.logging.InternalLoggerFactory;
 import org.apache.rocketmq.remoting.common.RemotingUtil;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+
 public class BrokerConfig {
     private static final InternalLogger log = InternalLoggerFactory.getLogger(LoggerName.COMMON_LOGGER_NAME);
 
-    private String rocketmqHome = System.getProperty(MixAll.ROCKETMQ_HOME_PROPERTY, System.getenv(MixAll.ROCKETMQ_HOME_ENV));
+    private String rocketmqHome = System.getProperty(MixAll.ROCKETMQ_HOME_PROPERTY,
+            System.getenv(MixAll.ROCKETMQ_HOME_ENV));
     @ImportantField
-    private String namesrvAddr = System.getProperty(MixAll.NAMESRV_ADDR_PROPERTY, System.getenv(MixAll.NAMESRV_ADDR_ENV));
+    private String namesrvAddr = System.getProperty(MixAll.NAMESRV_ADDR_PROPERTY,
+            System.getenv(MixAll.NAMESRV_ADDR_ENV));
+
+    /**
+     * broker主地址
+     */
     @ImportantField
     private String brokerIP1 = RemotingUtil.getLocalAddress();
+
+    /**
+     * 备用broker地址
+     */
     private String brokerIP2 = RemotingUtil.getLocalAddress();
     @ImportantField
     private String brokerName = localHostName();
+
+    /**
+     * 集群名称
+     */
     @ImportantField
     private String brokerClusterName = "DefaultCluster";
     @ImportantField
@@ -80,6 +95,10 @@ public class BrokerConfig {
 
     @ImportantField
     private boolean rejectTransactionMessage = false;
+
+    /**
+     * 是否强制拉取namesrv地址通过地址服务
+     */
     @ImportantField
     private boolean fetchNamesrvAddrByAddressServer = false;
     private int sendThreadPoolQueueCapacity = 10000;
@@ -110,7 +129,14 @@ public class BrokerConfig {
     private boolean transferMsgByHeap = true;
     private int maxDelayTime = 40;
 
+    /**
+     * 源id
+     */
     private String regionId = MixAll.DEFAULT_TRACE_REGION_ID;
+
+    /**
+     * 注册broker到Namesrv超时时间
+     */
     private int registerBrokerTimeoutMills = 6000;
 
     private boolean slaveReadEnable = false;
@@ -124,8 +150,14 @@ public class BrokerConfig {
     private long waitTimeMillsInHeartbeatQueue = 31 * 1000;
     private long waitTimeMillsInTransactionQueue = 3 * 1000;
 
+    /**
+     * 开始接受发送请求的时间戳
+     */
     private long startAcceptSendRequestTimeStamp = 0L;
 
+    /**
+     * broker默认支持轨迹追踪
+     */
     private boolean traceOn = true;
 
     // Switch of filter bit map calculation.
@@ -147,13 +179,17 @@ public class BrokerConfig {
     private boolean filterSupportRetry = false;
     private boolean enablePropertyFilter = false;
 
+    /**
+     * 是否压缩注册
+     */
     private boolean compressedRegister = false;
 
     private boolean forceRegister = true;
 
     /**
-     * This configurable item defines interval of topics registration of broker to name server. Allowing values are
-     * between 10, 000 and 60, 000 milliseconds.
+     * 注册broker到命名空间定时任务的周期
+     * 允许的值时10秒-60秒
+     * 默认30秒
      */
     private int registerNameServerPeriod = 1000 * 30;
 

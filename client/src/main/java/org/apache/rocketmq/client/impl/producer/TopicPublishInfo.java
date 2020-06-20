@@ -16,17 +16,25 @@
  */
 package org.apache.rocketmq.client.impl.producer;
 
-import java.util.ArrayList;
-import java.util.List;
 import org.apache.rocketmq.client.common.ThreadLocalIndex;
 import org.apache.rocketmq.common.message.MessageQueue;
 import org.apache.rocketmq.common.protocol.route.QueueData;
 import org.apache.rocketmq.common.protocol.route.TopicRouteData;
 
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * topic发布信息
+ */
 public class TopicPublishInfo {
     private boolean orderTopic = false;
     private boolean haveTopicRouterInfo = false;
     private List<MessageQueue> messageQueueList = new ArrayList<MessageQueue>();
+
+    /**
+     * 发送到哪一个队列的索引
+     */
     private volatile ThreadLocalIndex sendWhichQueue = new ThreadLocalIndex();
     private TopicRouteData topicRouteData;
 
@@ -38,6 +46,11 @@ public class TopicPublishInfo {
         this.orderTopic = orderTopic;
     }
 
+    /**
+     * 存在消息队列则topic就是ok的
+     *
+     * @return true ok
+     */
     public boolean ok() {
         return null != this.messageQueueList && !this.messageQueueList.isEmpty();
     }
@@ -66,30 +79,47 @@ public class TopicPublishInfo {
         this.haveTopicRouterInfo = haveTopicRouterInfo;
     }
 
+    /**
+     * 从指定broker上选择一个消息队列
+     *
+     * @param lastBrokerName 指定broker
+     * @return 消息队列
+     */
     public MessageQueue selectOneMessageQueue(final String lastBrokerName) {
         if (lastBrokerName == null) {
-            return selectOneMessageQueue();
+            // 没有上一个，取模负载均衡选一个
+            return this.selectOneMessageQueue();
         } else {
-            int index = this.sendWhichQueue.getAndIncrement();
-            for (int i = 0; i < this.messageQueueList.size(); i++) {
-                int pos = Math.abs(index++) % this.messageQueueList.size();
-                if (pos < 0)
+            // 取模获取指定的broker的
+            int index = sendWhichQueue.getAndIncrement();
+            for (int i = 0; i < messageQueueList.size(); i++) {
+                int pos = Math.abs(index++) % messageQueueList.size();
+                if (pos < 0) {
                     pos = 0;
-                MessageQueue mq = this.messageQueueList.get(pos);
+                }
+                MessageQueue mq = messageQueueList.get(pos);
                 if (!mq.getBrokerName().equals(lastBrokerName)) {
                     return mq;
                 }
             }
-            return selectOneMessageQueue();
+            // 没有这个broker的队列，取模选下一个
+            return this.selectOneMessageQueue();
         }
     }
 
+    /**
+     * 挑选一个消息队列
+     *
+     * @return 消息队列
+     */
     public MessageQueue selectOneMessageQueue() {
-        int index = this.sendWhichQueue.getAndIncrement();
-        int pos = Math.abs(index) % this.messageQueueList.size();
-        if (pos < 0)
+        // 队列选择自增，取模再获取一个
+        int index = sendWhichQueue.getAndIncrement();
+        int pos = Math.abs(index) % messageQueueList.size();
+        if (pos < 0) {
             pos = 0;
-        return this.messageQueueList.get(pos);
+        }
+        return messageQueueList.get(pos);
     }
 
     public int getQueueIdByBroker(final String brokerName) {
@@ -106,7 +136,7 @@ public class TopicPublishInfo {
     @Override
     public String toString() {
         return "TopicPublishInfo [orderTopic=" + orderTopic + ", messageQueueList=" + messageQueueList
-            + ", sendWhichQueue=" + sendWhichQueue + ", haveTopicRouterInfo=" + haveTopicRouterInfo + "]";
+                + ", sendWhichQueue=" + sendWhichQueue + ", haveTopicRouterInfo=" + haveTopicRouterInfo + "]";
     }
 
     public TopicRouteData getTopicRouteData() {

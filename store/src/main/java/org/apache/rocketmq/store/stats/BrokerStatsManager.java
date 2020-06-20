@@ -48,6 +48,7 @@ public class BrokerStatsManager {
     public static final String COMMERCIAL_SEND_SIZE = "COMMERCIAL_SEND_SIZE";
     public static final String COMMERCIAL_RCV_SIZE = "COMMERCIAL_RCV_SIZE";
     public static final String COMMERCIAL_PERM_FAILURES = "COMMERCIAL_PERM_FAILURES";
+
     public static final String COMMERCIAL_OWNER = "Owner";
     // Message Size limit for one api-calling count.
     public static final double SIZE_PER_COUNT = 64 * 1024;

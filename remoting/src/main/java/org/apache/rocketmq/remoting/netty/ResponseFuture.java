@@ -17,18 +17,26 @@
 package org.apache.rocketmq.remoting.netty;
 
 import io.netty.channel.Channel;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.rocketmq.remoting.InvokeCallback;
 import org.apache.rocketmq.remoting.common.SemaphoreReleaseOnlyOnce;
 import org.apache.rocketmq.remoting.protocol.RemotingCommand;
 
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+
+/**
+ * 创建返回future
+ */
 public class ResponseFuture {
     private final int opaque;
     private final Channel processChannel;
     private final long timeoutMillis;
     private final InvokeCallback invokeCallback;
+
+    /**
+     * 请求开始时间
+     */
     private final long beginTimestamp = System.currentTimeMillis();
     private final CountDownLatch countDownLatch = new CountDownLatch(1);
 
@@ -37,10 +45,14 @@ public class ResponseFuture {
     private final AtomicBoolean executeCallbackOnlyOnce = new AtomicBoolean(false);
     private volatile RemotingCommand responseCommand;
     private volatile boolean sendRequestOK = true;
+
+    /**
+     * 异常栈
+     */
     private volatile Throwable cause;
 
     public ResponseFuture(Channel channel, int opaque, long timeoutMillis, InvokeCallback invokeCallback,
-        SemaphoreReleaseOnlyOnce once) {
+                          SemaphoreReleaseOnlyOnce once) {
         this.opaque = opaque;
         this.processChannel = channel;
         this.timeoutMillis = timeoutMillis;
@@ -57,8 +69,8 @@ public class ResponseFuture {
     }
 
     public void release() {
-        if (this.once != null) {
-            this.once.release();
+        if (once != null) {
+            once.release();
         }
     }
 
@@ -124,13 +136,13 @@ public class ResponseFuture {
     @Override
     public String toString() {
         return "ResponseFuture [responseCommand=" + responseCommand
-            + ", sendRequestOK=" + sendRequestOK
-            + ", cause=" + cause
-            + ", opaque=" + opaque
-            + ", processChannel=" + processChannel
-            + ", timeoutMillis=" + timeoutMillis
-            + ", invokeCallback=" + invokeCallback
-            + ", beginTimestamp=" + beginTimestamp
-            + ", countDownLatch=" + countDownLatch + "]";
+                + ", sendRequestOK=" + sendRequestOK
+                + ", cause=" + cause
+                + ", opaque=" + opaque
+                + ", processChannel=" + processChannel
+                + ", timeoutMillis=" + timeoutMillis
+                + ", invokeCallback=" + invokeCallback
+                + ", beginTimestamp=" + beginTimestamp
+                + ", countDownLatch=" + countDownLatch + "]";
     }
 }

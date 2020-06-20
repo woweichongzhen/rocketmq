@@ -22,9 +22,19 @@ import java.util.Enumeration;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
+
 import org.apache.rocketmq.client.common.ThreadLocalIndex;
 
+/**
+ * 延迟容错实现
+ */
 public class LatencyFaultToleranceImpl implements LatencyFaultTolerance<String> {
+
+    /**
+     * 容错项
+     * key：broker名称
+     * value：错误项
+     */
     private final ConcurrentHashMap<String, FaultItem> faultItemTable = new ConcurrentHashMap<String, FaultItem>(16);
 
     private final ThreadLocalIndex whichItemWorst = new ThreadLocalIndex();
@@ -50,7 +60,8 @@ public class LatencyFaultToleranceImpl implements LatencyFaultTolerance<String> 
 
     @Override
     public boolean isAvailable(final String name) {
-        final FaultItem faultItem = this.faultItemTable.get(name);
+        // 获取容错项，判断是否达到容错时间
+        final FaultItem faultItem = faultItemTable.get(name);
         if (faultItem != null) {
             return faultItem.isAvailable();
         }
@@ -91,14 +102,29 @@ public class LatencyFaultToleranceImpl implements LatencyFaultTolerance<String> 
     @Override
     public String toString() {
         return "LatencyFaultToleranceImpl{" +
-            "faultItemTable=" + faultItemTable +
-            ", whichItemWorst=" + whichItemWorst +
-            '}';
+                "faultItemTable=" + faultItemTable +
+                ", whichItemWorst=" + whichItemWorst +
+                '}';
     }
 
+    /**
+     * 错误项
+     */
     class FaultItem implements Comparable<FaultItem> {
+
+        /**
+         * 错误名称
+         */
         private final String name;
+
+        /**
+         * 当前容错
+         */
         private volatile long currentLatency;
+
+        /**
+         * 容错可以开始的时间
+         */
         private volatile long startTimestamp;
 
         public FaultItem(final String name) {
@@ -162,10 +188,10 @@ public class LatencyFaultToleranceImpl implements LatencyFaultTolerance<String> 
         @Override
         public String toString() {
             return "FaultItem{" +
-                "name='" + name + '\'' +
-                ", currentLatency=" + currentLatency +
-                ", startTimestamp=" + startTimestamp +
-                '}';
+                    "name='" + name + '\'' +
+                    ", currentLatency=" + currentLatency +
+                    ", startTimestamp=" + startTimestamp +
+                    '}';
         }
 
         public String getName() {

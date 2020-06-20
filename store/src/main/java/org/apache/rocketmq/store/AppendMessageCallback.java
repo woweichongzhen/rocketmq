@@ -17,27 +17,31 @@
 package org.apache.rocketmq.store;
 
 import java.nio.ByteBuffer;
+
 import org.apache.rocketmq.common.message.MessageExtBatch;
 
 /**
+ * 写消息回调接口
  * Write messages callback interface
  */
 public interface AppendMessageCallback {
 
     /**
+     * 消息序列化后，写到内存映射文件
      * After message serialization, write MapedByteBuffer
      *
      * @return How many bytes to write
      */
     AppendMessageResult doAppend(final long fileFromOffset, final ByteBuffer byteBuffer,
-        final int maxBlank, final MessageExtBrokerInner msg);
+                                 final int maxBlank, final MessageExtBrokerInner msg);
 
     /**
+     * 批量消息序列化后，写到内存映射文件中
      * After batched message serialization, write MapedByteBuffer
      *
      * @param messageExtBatch, backed up by a byte array
      * @return How many bytes to write
      */
     AppendMessageResult doAppend(final long fileFromOffset, final ByteBuffer byteBuffer,
-        final int maxBlank, final MessageExtBatch messageExtBatch);
+                                 final int maxBlank, final MessageExtBatch messageExtBatch);
 }

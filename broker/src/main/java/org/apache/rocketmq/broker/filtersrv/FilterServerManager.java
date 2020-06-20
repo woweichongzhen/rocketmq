@@ -18,6 +18,7 @@
 package org.apache.rocketmq.broker.filtersrv;
 
 import io.netty.channel.Channel;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -27,6 +28,7 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+
 import org.apache.rocketmq.broker.BrokerController;
 import org.apache.rocketmq.broker.BrokerStartup;
 import org.apache.rocketmq.common.ThreadFactoryImpl;
@@ -40,11 +42,11 @@ public class FilterServerManager {
     public static final long FILTER_SERVER_MAX_IDLE_TIME_MILLS = 30000;
     private static final InternalLogger log = InternalLoggerFactory.getLogger(LoggerName.BROKER_LOGGER_NAME);
     private final ConcurrentMap<Channel, FilterServerInfo> filterServerTable =
-        new ConcurrentHashMap<Channel, FilterServerInfo>(16);
+            new ConcurrentHashMap<Channel, FilterServerInfo>(16);
     private final BrokerController brokerController;
 
     private ScheduledExecutorService scheduledExecutorService = Executors
-        .newSingleThreadScheduledExecutor(new ThreadFactoryImpl("FilterServerManagerScheduledThread"));
+            .newSingleThreadScheduledExecutor(new ThreadFactoryImpl("FilterServerManagerScheduledThread"));
 
     public FilterServerManager(final BrokerController brokerController) {
         this.brokerController = brokerController;
@@ -66,7 +68,7 @@ public class FilterServerManager {
 
     public void createFilterServer() {
         int more =
-            this.brokerController.getBrokerConfig().getFilterServerNums() - this.filterServerTable.size();
+                this.brokerController.getBrokerConfig().getFilterServerNums() - this.filterServerTable.size();
         String cmd = this.buildStartCommand();
         for (int i = 0; i < more; i++) {
             FilterServerUtil.callShell(cmd, log);
@@ -85,12 +87,12 @@ public class FilterServerManager {
 
         if (RemotingUtil.isWindowsPlatform()) {
             return String.format("start /b %s\\bin\\mqfiltersrv.exe %s",
-                this.brokerController.getBrokerConfig().getRocketmqHome(),
-                config);
+                    this.brokerController.getBrokerConfig().getRocketmqHome(),
+                    config);
         } else {
             return String.format("sh %s/bin/startfsrv.sh %s",
-                this.brokerController.getBrokerConfig().getRocketmqHome(),
-                config);
+                    this.brokerController.getBrokerConfig().getRocketmqHome(),
+                    config);
         }
     }
 
@@ -130,13 +132,19 @@ public class FilterServerManager {
         FilterServerInfo old = this.filterServerTable.remove(channel);
         if (old != null) {
             log.warn("The Filter Server<{}> connection<{}> closed, remove it", old.getFilterServerAddr(),
-                remoteAddr);
+                    remoteAddr);
         }
     }
 
+    /**
+     * 构建新的过滤服务地址
+     *
+     * @return 过滤服务地址
+     */
     public List<String> buildNewFilterServerList() {
         List<String> addr = new ArrayList<>();
-        Iterator<Entry<Channel, FilterServerInfo>> it = this.filterServerTable.entrySet().iterator();
+        // 拿到过滤服务列表，添加过滤服务地址
+        Iterator<Entry<Channel, FilterServerInfo>> it = filterServerTable.entrySet().iterator();
         while (it.hasNext()) {
             Entry<Channel, FilterServerInfo> next = it.next();
             addr.add(next.getValue().getFilterServerAddr());

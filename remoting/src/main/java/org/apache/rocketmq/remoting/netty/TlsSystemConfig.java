@@ -20,6 +20,9 @@ package org.apache.rocketmq.remoting.netty;
 import io.netty.handler.ssl.SslContext;
 import org.apache.rocketmq.remoting.common.TlsMode;
 
+/**
+ * tls系统配置
+ */
 public class TlsSystemConfig {
     public static final String TLS_SERVER_MODE = "tls.server.mode";
     public static final String TLS_ENABLE = "tls.enable";
@@ -74,7 +77,8 @@ public class TlsSystemConfig {
     /**
      * To determine whether verify the client endpoint's certificate strictly
      */
-    public static boolean tlsServerAuthClient = Boolean.parseBoolean(System.getProperty(TLS_SERVER_AUTHCLIENT, "false"));
+    public static boolean tlsServerAuthClient = Boolean.parseBoolean(System.getProperty(TLS_SERVER_AUTHCLIENT, "false"
+    ));
 
     /**
      * The store path of trusted certificates for verifying the client endpoint's certificate
@@ -99,7 +103,8 @@ public class TlsSystemConfig {
     /**
      * To determine whether verify the server endpoint's certificate strictly
      */
-    public static boolean tlsClientAuthServer = Boolean.parseBoolean(System.getProperty(TLS_CLIENT_AUTHSERVER, "false"));
+    public static boolean tlsClientAuthServer = Boolean.parseBoolean(System.getProperty(TLS_CLIENT_AUTHSERVER, "false"
+    ));
 
     /**
      * The store path of trusted certificates for verifying the server endpoint's certificate
@@ -110,8 +115,10 @@ public class TlsSystemConfig {
      * For server, three SSL modes are supported: disabled, permissive and enforcing.
      * For client, use {@link TlsSystemConfig#tlsEnable} to determine whether use SSL.
      * <ol>
-     *     <li><strong>disabled:</strong> SSL is not supported; any incoming SSL handshake will be rejected, causing connection closed.</li>
-     *     <li><strong>permissive:</strong> SSL is optional, aka, server in this mode can serve client connections with or without SSL;</li>
+     *     <li><strong>disabled:</strong> SSL is not supported; any incoming SSL handshake will be rejected, causing
+     *     connection closed.</li>
+     *     <li><strong>permissive:</strong> SSL is optional, aka, server in this mode can serve client connections
+     *     with or without SSL;</li>
      *     <li><strong>enforcing:</strong> SSL is required, aka, non SSL connection will be rejected.</li>
      * </ol>
      */

@@ -20,8 +20,12 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+
 import org.apache.rocketmq.common.MixAll;
 
+/**
+ * 批量消息
+ */
 public class MessageBatch extends Message implements Iterable<Message> {
 
     private static final long serialVersionUID = 621335151046335557L;
@@ -55,10 +59,12 @@ public class MessageBatch extends Message implements Iterable<Message> {
                 first = message;
             } else {
                 if (!first.getTopic().equals(message.getTopic())) {
-                    throw new UnsupportedOperationException("The topic of the messages in one batch should be the same");
+                    throw new UnsupportedOperationException("The topic of the messages in one batch should be the " +
+                            "same");
                 }
                 if (first.isWaitStoreMsgOK() != message.isWaitStoreMsgOK()) {
-                    throw new UnsupportedOperationException("The waitStoreMsgOK of the messages in one batch should the same");
+                    throw new UnsupportedOperationException("The waitStoreMsgOK of the messages in one batch should " +
+                            "the same");
                 }
             }
             messageList.add(message);

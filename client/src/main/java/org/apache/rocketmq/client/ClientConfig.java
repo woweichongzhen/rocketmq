@@ -20,6 +20,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.rocketmq.common.UtilAll;
 import org.apache.rocketmq.common.message.MessageQueue;
@@ -30,14 +31,27 @@ import org.apache.rocketmq.remoting.netty.TlsSystemConfig;
 import org.apache.rocketmq.remoting.protocol.LanguageCode;
 
 /**
+ * 客户端公共配置
  * Client Common configuration
  */
 public class ClientConfig {
+
+    /**
+     * 是否使用虚拟ip通道发送消息
+     */
     public static final String SEND_MESSAGE_WITH_VIP_CHANNEL_PROPERTY = "com.rocketmq.sendMessageWithVIPChannel";
     private String namesrvAddr = NameServerAddressUtils.getNameServerAddresses();
     private String clientIP = RemotingUtil.getLocalAddress();
+
+    /**
+     * rocketmq客户端实例名称，未配置默认DEFAULT
+     */
     private String instanceName = System.getProperty("rocketmq.client.name", "DEFAULT");
     private int clientCallbackExecutorThreads = Runtime.getRuntime().availableProcessors();
+
+    /**
+     * 实例的命名空间
+     */
     protected String namespace;
     protected AccessChannel accessChannel = AccessChannel.LOCAL;
 
@@ -56,7 +70,12 @@ public class ClientConfig {
     private long pullTimeDelayMillsWhenException = 1000;
     private boolean unitMode = false;
     private String unitName;
-    private boolean vipChannelEnabled = Boolean.parseBoolean(System.getProperty(SEND_MESSAGE_WITH_VIP_CHANNEL_PROPERTY, "false"));
+
+    /**
+     * 是否启用虚拟ip通道
+     */
+    private boolean vipChannelEnabled =
+            Boolean.parseBoolean(System.getProperty(SEND_MESSAGE_WITH_VIP_CHANNEL_PROPERTY, "false"));
 
     private boolean useTLS = TlsSystemConfig.tlsEnable;
 
@@ -92,12 +111,21 @@ public class ClientConfig {
         this.instanceName = instanceName;
     }
 
+    /**
+     * 如果实例名称为默认，改变实例名称为PID
+     */
     public void changeInstanceNameToPID() {
-        if (this.instanceName.equals("DEFAULT")) {
-            this.instanceName = String.valueOf(UtilAll.getPid());
+        if ("DEFAULT".equals(instanceName)) {
+            instanceName = String.valueOf(UtilAll.getPid());
         }
     }
 
+    /**
+     * 对资源包装命名空间
+     *
+     * @param resource 资源
+     * @return 包装命名空间后的资源
+     */
     public String withNamespace(String resource) {
         return NamespaceUtil.wrapNamespace(this.getNamespace(), resource);
     }
@@ -278,7 +306,8 @@ public class ClientConfig {
             return namespace;
         }
 
-        if (StringUtils.isNotEmpty(this.namesrvAddr)) {
+        // 如果命名空间为空，使用命名服务地址作为命名空间名称
+        if (StringUtils.isNotEmpty(namesrvAddr)) {
             if (NameServerAddressUtils.validateInstanceEndpoint(namesrvAddr)) {
                 return NameServerAddressUtils.parseInstanceIdFromEndpoint(namesrvAddr);
             }
@@ -302,9 +331,9 @@ public class ClientConfig {
     @Override
     public String toString() {
         return "ClientConfig [namesrvAddr=" + namesrvAddr + ", clientIP=" + clientIP + ", instanceName=" + instanceName
-            + ", clientCallbackExecutorThreads=" + clientCallbackExecutorThreads + ", pollNameServerInterval=" + pollNameServerInterval
-            + ", heartbeatBrokerInterval=" + heartbeatBrokerInterval + ", persistConsumerOffsetInterval=" + persistConsumerOffsetInterval
-            + ", pullTimeDelayMillsWhenException=" + pullTimeDelayMillsWhenException + ", unitMode=" + unitMode + ", unitName=" + unitName + ", vipChannelEnabled="
-            + vipChannelEnabled + ", useTLS=" + useTLS + ", language=" + language.name() + ", namespace=" + namespace + "]";
+                + ", clientCallbackExecutorThreads=" + clientCallbackExecutorThreads + ", pollNameServerInterval=" + pollNameServerInterval
+                + ", heartbeatBrokerInterval=" + heartbeatBrokerInterval + ", persistConsumerOffsetInterval=" + persistConsumerOffsetInterval
+                + ", pullTimeDelayMillsWhenException=" + pullTimeDelayMillsWhenException + ", unitMode=" + unitMode + ", unitName=" + unitName + ", vipChannelEnabled="
+                + vipChannelEnabled + ", useTLS=" + useTLS + ", language=" + language.name() + ", namespace=" + namespace + "]";
     }
 }

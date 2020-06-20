@@ -17,12 +17,28 @@
 
 package org.apache.rocketmq.client.latency;
 
+/**
+ * 延迟容错接口
+ *
+ * @param <T>
+ */
 public interface LatencyFaultTolerance<T> {
     void updateFaultItem(final T name, final long currentLatency, final long notAvailableDuration);
 
+    /**
+     * 资源是否可用
+     *
+     * @param name 资源名称
+     * @return true可用
+     */
     boolean isAvailable(final T name);
 
     void remove(final T name);
 
+    /**
+     * 挑选一个最小的
+     *
+     * @return 最小的
+     */
     T pickOneAtLeast();
 }

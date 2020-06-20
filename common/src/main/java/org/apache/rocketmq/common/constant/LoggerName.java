@@ -16,11 +16,30 @@
  */
 package org.apache.rocketmq.common.constant;
 
+/**
+ * logger名称
+ */
 public class LoggerName {
     public static final String FILTERSRV_LOGGER_NAME = "RocketmqFiltersrv";
+
+    /**
+     * namesrv运行logger
+     */
     public static final String NAMESRV_LOGGER_NAME = "RocketmqNamesrv";
+
+    /**
+     * namesrv控制台logger
+     */
     public static final String NAMESRV_CONSOLE_NAME = "RocketmqNamesrvConsole";
+
+    /**
+     * broker运行logger
+     */
     public static final String BROKER_LOGGER_NAME = "RocketmqBroker";
+
+    /**
+     * broker控制台logger
+     */
     public static final String BROKER_CONSOLE_NAME = "RocketmqConsole";
     public static final String CLIENT_LOGGER_NAME = "RocketmqClient";
     public static final String TOOLS_LOGGER_NAME = "RocketmqTools";
